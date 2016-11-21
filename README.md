@@ -4,9 +4,7 @@
     S <-  read.table("pronostico.txt", header = TRUE,stringsAsFactors=FALSE)
 
     library(forecast)
-   
     library(xtable)
- 
     attach(S)
 
 
