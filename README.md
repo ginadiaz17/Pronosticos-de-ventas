@@ -129,3 +129,4 @@
     M.exp = medidas(mod.exp,yi,2)
     (M = cbind(M.lin,M.cuad,M.cub,M.exp))
 
+
