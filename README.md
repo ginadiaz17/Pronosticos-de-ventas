@@ -349,7 +349,7 @@
     t3 = t2*t
     It = seasonaldummy(yi)
 
-#--- loess + indicadoras
+#loess + indicadoras
 
 #paso 1
 
@@ -394,7 +394,7 @@
     r=ts(r,frequency=12)
 
 
-#-------------pruebas Ljung-Box
+#pruebas Ljung-Box
 
     Box.test(r, lag = 24 , type =  "Ljung-Box")
 
@@ -468,14 +468,14 @@
 
 
     coeftest(mod5)
-#------------estimacion ARMA (2,0,2)
+#estimacion ARMA (2,0,2)
 
     mod6 = arima(r,order=c(2,0,2))
 
     mod6 
 
     coeftest(mod6)
-#------------estimacion sARMA ((6,1)(0,0)[12])
+#estimacion sARMA ((6,1)(0,0)[12])
 
         mod8 = arima(r,
              order=c(6,0,1),
