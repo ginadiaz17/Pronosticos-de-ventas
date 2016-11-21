@@ -1,4 +1,4 @@
-# pron-sticos-de-ventas
+# pronosticos de  ventas tendencias global
 ##cargar base de datos tendencia global
 
     S <-  read.table("pronostico.txt", header = TRUE,stringsAsFactors=FALSE)
