@@ -33,9 +33,7 @@
 # Generar datos para validacion cruzada: dejar el ultimo año
 
      T = length(ry)
-
     yi = ts(ry[1:(T-12)],frequency = 12)
-
     yf = ts(ry[(T-12+1):T],frequency = 12)
 
 
@@ -61,11 +59,8 @@
 #AJUSTAR 4 MODELOS: LINEAL, CUADRATICO, CUBICO, LOG-LIN
 
     t = seq(1:(T-3))
-
     t2 = t^2
-
     t3 = t^3
-
     lyi = log(yi)#el log no se puede sacar a valores negativos, genera mensaje de advertencia
 
 
@@ -78,9 +73,7 @@
 #parametros del modelo
 
     summary(mod.lin)
-
     summary(mod.cuad)
-
     summary(mod.cub)
     
 #medidas de ajuste
