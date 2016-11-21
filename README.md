@@ -567,9 +567,148 @@ cpgram(at)
     rownames(A)=c("estructural","E+arma(2,2)")
     (A)
 
+ #modelos ARIMA-SARIMA   
+ 
+     require(fUnitRoots)
+     urdfTest(yi,lags = 3, type ="ct" , doplot = TRUE) 
+    
+     source("funUroot.r")
+
+     ch.out1 = CH.test(wts=yi, frec=c(1,1,1,1,1,1), f0=0, 
+                  DetTr=FALSE)
+     ch.out1
+
+#prueba  hegy itsd=c(1,1,c(1,2))
+# colocar itsd=c(1,1,c(1,2)) 
+
+    res = HEGY.test(wts=yi, 
+                itsd=c(1,1,c(1,2)),#de acuerdo a los resultados de canova-hasen
+                regvar=0, selectlags=list(mode="signf", Pmax=NULL))
+    res
+
+#Serie doblemente diferenciada
+
+    s= 12 #Frecuencia de la serie
+    ddy = diff(diff(yi,s,1),1,1)
+    par(mfrow=c(1,2))
+    #layout(1:2)
+    ts.plot(yi,main= "Serie sin diferenciar")
     
     
-    
+#Armasubsets
+
+    require(TSA)
+    res=armasubsets(yi=ddy,nar=14,nma=14,
+                y.name='r',
+                ar.method='ols')
+
+
+    plot(res)
+
+#SARIMA(p, d, q)(ps,D, qs)[s]
+
+
+#Modelo sugerido por armasubsets
+#ARIMA(5,0,3)(1,0,1)[12]
+
+    auto.arima(yi)
+#Modelo sugerido por auto.arima
+#ARIMA(0,1,1)(0,0,1)[12]   
+
+#Estimación de los modelos 
+
+    m1 = arima(yi, order = c(5, 0, 3),
+           seasonal = list(order = c(1, 0, 1), period = 12),
+           include.mean = TRUE)
+    m1
+    m2 = arima(yi, order = c(0, 1, 1),
+           seasonal = list(order = c(0, 0, 1), period = 12),
+           include.mean = TRUE)
+    m2
 
 
 
+    require(lmtest)
+    coeftest(m1)
+    coeftest(m2)
+
+#medidas de ajuste
+
+    c(AIC(m1), AIC(m2))
+
+
+
+#Residuos del modelo 1
+#Calculo FAC 
+
+    r= m1$residuals
+    par(mfrow=c(1,2))
+    acf (r,36)#
+    pacf(r,36)
+
+    length(r)
+#pruebas Ljung-Box
+
+    Box.test(r, lag = 24 , type = "Ljung-Box")
+
+#Residuos del modelo 2
+
+    rr= m2$residuals
+    acf (rr,36)#
+     pacf(rr,36)
+    length(rr)
+    
+#pruebas Ljung-Box
+
+    Box.test(rr, lag = 24 , type = "Ljung-Box")
+
+
+
+#Pronosticos con los modelos encontrados
+#Pronostico modelo 1
+
+    par(mfrow=c(1,1))
+    m=12
+    yp1 = predict(m1,n.ahead=m)$pred
+
+#Pronostico modelo 2
+
+    yp2 = predict(m2,n.ahead=m)$pred
+
+#Dar formato fecha a los datos 
+# generar un vector de fechas, clase 'Date'
+
+    date = seq(as.Date("2011/1/1"), length.out = length(yi), 
+           by =  "month")
+    np = length(yi)
+    ejex.mes = seq(date[1],date[np], "months")
+    ejex.año = seq(date[1],date[np],"years")
+
+#Generar grafico con los pronosticos de los 2 modelos enconrados
+
+    plot(date[(np-12):np],yi[(np-12):np], xaxt="n", panel.first = grid(),type='b',
+     ylab="ventas",xlab="Tiempo",col='black')
+     axis.Date(1, at=ejex.mes, format="%m/%y")
+    axis.Date(1, at=ejex.año, labels = FALSE, tcl = -0.2)
+
+    lines(date[(np-12):np],c(yi[(np-12):(np-m)],yp1),col='blue',lwd=2)
+    lines(date[(np-12):np],c(yi[(np-12):(np-m)],yp2),col='red',lwd=2)
+    lines(date[(np-12):np],yi[(np-12):np],col='black',lwd=1)
+
+    legend("topleft", cex = 0.7,
+       c("Observados","Mod Armasubsets","Mod Auto.arima"), 
+       lty = c(1),
+       lwd=c(2),
+       col=c("black","blue","red") )
+
+    T <- length(yi)
+    yf = yi[(T-12+1):T]
+#Mape para los dos modelos
+
+    M = rbind(
+    accuracy(as.numeric(yp1),yf),
+    accuracy(as.numeric(yp2),yf))
+
+    rownames(M)=c("Mod Armasubsets","Mod Auto.arima")
+    (M)   
+    ts.plot(ddy, main= "Serie doblemente diferenciada")
